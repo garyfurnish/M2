@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
+#include <signal.h>
 
 // We allocate this many threads initially, to save trouble with memory allocation.
 // We may have to raise this, in the future.

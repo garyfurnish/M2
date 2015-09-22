@@ -13,7 +13,7 @@ include supervisor.dep
 include m2file.dep
 include tests.dep
 endif
-CPPFLAGS := -I@srcdir@ -I../d -I@srcdir@/../e $(CPPFLAGS) -I@srcdir@/../d -I@srcdir@/../c
+CPPFLAGS := -I@srcdir@ -I../d -I@srcdir@/../e $(CPPFLAGS) -I@srcdir@/../d -I@srcdir@/../c -std=c++11
 .PHONY: tags
 scCMD = $(COMPILE.c) -S $(OUTPUT_OPTION) $<
 %.s : %.c
