@@ -32,11 +32,11 @@ int badBlock() {
 }
 
 #if GC_DEBUG
-extern unsigned int GC_debug_header_size;
-extern void *GC_check_annotated_obj(void *); /* returns NULL or pointer to clobbered debug header location */
+//extern unsigned int GC_debug_header_size;
+//extern void *GC_check_annotated_obj(void *); /* returns NULL or pointer to clobbered debug header location */
 void GC_check(void *p) {
-  void *q = (char *)p - GC_debug_header_size;
-  if (NULL != GC_check_annotated_obj(q)) trap();
+  //void *q = (char *)p - GC_debug_header_size;
+  //  if (NULL != GC_check_annotated_obj(q)) trap();
 }
 void gmp_GC_check(void *p) {
   extern void *GC_malloc_function(size_t);
