@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <signal.h>
+#ifdef USE_CGC1
+#include <cgc1/cgc1.hpp>
+#endif
 
 // We allocate this many threads initially, to save trouble with memory allocation.
 // We may have to raise this, in the future.
@@ -408,6 +411,9 @@ void SupervisorThread::threadEntryPoint()
   if(pthread_setspecific(threadSupervisor->m_ThreadSpecificKey,m_ThreadLocal))
     abort();
   #endif
+  #ifdef USE_CGC1
+  CGC1_INITIALIZE_THREAD();
+  #endif
   m_Interrupt=&THREADLOCAL(interrupts_interruptedFlag,struct atomic_field);
   m_Exception=&THREADLOCAL(interrupts_exceptionFlag,struct atomic_field);
   reverse_run(thread_prepare_list);// re-initialize any thread local variables
@@ -422,4 +428,7 @@ void SupervisorThread::threadEntryPoint()
       struct ThreadTask* task = threadSupervisor->getTask();
       task->run(this);
     }
+  #ifdef USE_CGC1
+  ::cgc1::cgc_unregister_thread();
+  #endif
 }

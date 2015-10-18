@@ -2,7 +2,7 @@
 
 #ifndef _aring_gf_flint_big_hpp_
 #define _aring_gf_flint_big_hpp_
-
+#include <cstddef>
 #include <vector>
 
 // The following needs to be included before any flint files are included.

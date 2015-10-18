@@ -2,7 +2,7 @@
 
 #ifndef _aring_QQ_flint_hpp_
 #define _aring_QQ_flint_hpp_
-
+#include <cstddef>
 #include <iosfwd>
 
 // The following needs to be included before any flint files are included.
