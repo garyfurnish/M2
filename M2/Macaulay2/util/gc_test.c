@@ -49,7 +49,7 @@ int main() {
   int i;
 
   GC_INIT();
-
+#ifndef CGC1_FAKE_BOEHM
   uniq("%s:%d: error: gc library doesn't find all the active pointers in registers or on the stack!\n"
        "           Perhaps GC_push_regs was configured incorrectly.\n",
        GC_malloc(12), GC_malloc(12), GC_malloc(12), (GC_gcollect(),GC_malloc(12)),
@@ -63,6 +63,7 @@ int main() {
        if (i%4 == 3) GC_gcollect();
        x[i] = GC_malloc(12);
   }
+#endif
   uniq("%s:%d: error: gc library doesn't find all the active pointers in static memory!\n"
         "           Perhaps GC_add_roots needs to be told about static memory.\n",
        x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],x[12],x[13],x[14],x[15],x[16],x[17],x[18],x[19], (void *)0);

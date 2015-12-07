@@ -162,8 +162,8 @@ endif
 # CXXFLAGS += -std=c++98
 # CXXFLAGS += -pedantic-errors
 
-CFLAGS   += -Wreturn-type -Werror
-CXXFLAGS += -Wreturn-type -Werror
+CFLAGS   += -Wreturn-type -Werror -Wno-strict-overflow
+CXXFLAGS += -Wreturn-type -Werror -Wno-strict-overflow
 CXXFLAGS += -std=c++1y
 
 python-c.o : | python-exports.h.tmp
