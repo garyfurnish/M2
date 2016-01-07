@@ -111,6 +111,7 @@ void fail(char *filename, int lineno) {
      	  fprintf(stderr,"%s:%d: <- here\n",
 	       cur.filename, cur.lineno);
 	  }
+     abort();
      exit(1);
      }
 
