@@ -2,7 +2,7 @@
 
 #include "scc.h"
 
-void fatal(char *s,...)
+void fatal(const char *s,...)
 {
      va_list ap;
      va_start(ap,s);
@@ -21,7 +21,7 @@ int n_errors = 0;
 int warnings = 0;
 #define WARNLIMIT 240
 
-void error(char *s,...)
+void error(const char *s,...)
 {
      va_list ap;
      va_start(ap,s);
@@ -35,7 +35,7 @@ void error(char *s,...)
      if (n_errors > ERRLIMIT) fatal("too many errors");
      }
 
-void warning(char *s,...)
+void warning(const char *s,...)
 {
      va_list ap;
      va_start(ap,s);

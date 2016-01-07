@@ -1,7 +1,11 @@
 /*		Copyright 1993,2010 by Daniel R. Grayson		*/
 
+#include <cgc1/cgc1.hpp>
+extern "C" {
 #include "scc.h"
 
+
+scope global_scope;
 FILE *dependfile;
 char *targetname;
 char *outfilename;
@@ -20,7 +24,7 @@ static char Copyright[] = "Copyright 1993, 2010, by Daniel R. Grayson";
 static char Version[]   = "Safe C - version 2.0";
 
 char *getmem(unsigned n) {
-     char *p = GC_MALLOC(n);	/* GC_MALLOC clears the memory */
+  char *p = reinterpret_cast<char*>(::cgc1::cgc_malloc(n));	/* GC_MALLOC clears the memory */
      if (p == NULL) fatal("out of memory");
      return p;
      }
@@ -29,7 +33,8 @@ static char *progname;
 
 node newnode1(unsigned int len, enum TAG tag) {
      node p = (node) getmem(len);
-     memset(p,0x00,len);
+     //     memset(p,0x00,len);
+     //this is done by malloc
      p->tag = tag;
      return p;
      }
@@ -45,7 +50,7 @@ char *strperm(const char *s){
      return strnperm(s,strlen(s));
      }
 
-char *intToString(int n){
+const char *intToString(int n){
      int sign = 1;
      static char s[20];
      int i;
@@ -97,8 +102,8 @@ char *BaseName(char *s) {
      return u;
      }
 
-char *newsuffix(char *s, char *suf){
-     char *t = tail(s);
+char *newsuffix(const char *s, const char *suf){
+     const char *t = tail(const_cast<char*>(s));
      unsigned int len = t-s;
      char *u = getmem(len+1+strlen(suf));
      strncpy(u,s,len);
@@ -106,11 +111,11 @@ char *newsuffix(char *s, char *suf){
      return u;
      }
 
-char *newsuffixbase(char *s, char *suf){
+char *newsuffixbase(const char *s, const char *suf){
      char *t, *u;
      unsigned int len;
-     s = BaseName(s);
-     t = tail(s);
+     s = BaseName(const_cast<char*>(s));
+     t = tail(const_cast<char*>(s));
      len = t-s;
      u = getmem(len+1+strlen(suf));
      strncpy(u,s,len);
@@ -118,9 +123,9 @@ char *newsuffixbase(char *s, char *suf){
      return u;
      }
 
-const struct POS empty_pos;
+const struct POS empty_pos{};
 
-static char declarations_header[] = "\
+static const char declarations_header[] = "\
 /* included from " __FILE__ "*/\n\
 \n\
 #ifdef __cplusplus\n\
@@ -146,7 +151,7 @@ struct tagged_union { unsigned short type_; };\n\
 \n\
 ";
 
-static char declarations_trailer[] = "\
+static const char declarations_trailer[] = "\
 \n\
 #if defined(__cplusplus)\n\
   }\n\
@@ -154,7 +159,7 @@ static char declarations_trailer[] = "\
 \n\
 ";
 
-static char code_header[] = "\
+static const char code_header[] = "\
 #include \"scc-core.h\"\n\
 #include \"../system/supervisorinterface.h\"\n\
 ";
@@ -183,11 +188,13 @@ static void usage() {
   printf("    -debug        set debugging mode on, write symbol table, list of types, and list of strings to foo.sym\n");
   printf("    -Ixxx         append xxx to the path used for finding *.sig files, initially \".\"\n");
 }
-
+extern node* hash_buckets;
 int main(int argc, char **argv){
      int i;
      char *p;
      GC_INIT();
+     ::cgc1::cgc_root_t hash_bucket_root(hash_buckets);
+     hash_buckets=reinterpret_cast<node*>(::cgc1::cgc_malloc(sizeof(node)*7313));
      progname = BaseName(argv[0]);
      yyinit();
      for (p=argv[0]; *p; p++) if (*p=='/') progname = p+1;
@@ -378,7 +385,7 @@ int main(int argc, char **argv){
      return 0;
      }
 
-     
+}
 
 /*
 # Local Variables:

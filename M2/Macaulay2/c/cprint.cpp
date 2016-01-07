@@ -1,5 +1,10 @@
 /*		Copyright 1993 by Daniel R. Grayson		*/
+#include <cgc1/cgc1.hpp>
 
+static ::cgc1::cgc_root_pointer_t<struct POS> curpos;
+
+extern "C"
+{
 #include "scc.h"
 
 
@@ -9,7 +14,7 @@ int threadLocalDeclarationFlag=0;
 
 
 static void printstringconst(node p){
-     char *s = tostring(p);
+     const char *s = tostring(p);
      putchar('"');
      while (*s) {
 	  switch(*s) {
@@ -25,7 +30,7 @@ static void printstringconst(node p){
      putchar('"');
      }
 
-char *tostring(node e){
+const char *tostring(node e){
      if (e == NULL) return "<<NULL>>";
      switch(e->tag){
           case cons_tag: pp(e);return "<<cons>>";
@@ -55,7 +60,7 @@ static void printsymbolbasic(node p){
 	  }
      }
 
-char* getsymbolbasicname(node p){
+const char* getsymbolbasicname(node p){
      assert(p != NULL);
      assert(p->tag == symbol_tag);
      if (p->body.symbol.Cname != NULL) {
@@ -83,7 +88,7 @@ void printsymbol(node p){
 	  printsymbolbasic(p);
      }
 
-void pput(char *s){
+void pput(const char *s){
      while (*s) {
 	  putchar(*s);
 	  if (*s == '\n') { }
@@ -104,7 +109,7 @@ static void cindent(){
 	  }
      }     
 
-void put(char *s){
+void put(const char *s){
      if (0 == strcmp(s,"{")) clevel++;
      if (0 == strcmp(s,"}")) clevel--;
      while (*s) {
@@ -113,8 +118,6 @@ void put(char *s){
 	  s++;
 	  }
      }
-
-static struct POS *curpos = NULL;
 
 struct POS *pos2(node n) {
      /* this is a version of pos() that ignores the position where a
@@ -710,7 +713,7 @@ void put_unescape(char *s) {
 static void cprintCcode(node s){
      while (s != NULL) {
 	  node a = CAR(s);
-	  if (a->tag == string_const_tag) put_unescape(tostring(a));
+	  if (a->tag == string_const_tag) put_unescape(const_cast<char*>(tostring(a)));
 	  else cprint(a);
 	  s = CDR(s);
 	  }
@@ -893,7 +896,7 @@ static void dprintsig(node g){
      }
 
 static void dprintop(node f){
-     if (isstr(f) && !validtoken(tostring(f))) put("op");
+     if (isstr(f) && !validtoken(const_cast<char*>(tostring(f)))) put("op");
      dprint(f);
      }
 
@@ -963,7 +966,7 @@ void dprint(node e){
           default: assert(FALSE);
 	  }
      }
-
+}
 /*
 # Local Variables:
 # compile-command: "make -C $M2BUILDDIR/Macaulay2/c "

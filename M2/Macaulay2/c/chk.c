@@ -317,7 +317,7 @@ static int gettypecode(node t) {
      if (t->body.type.runtime_type_code != -1) return t->body.type.runtime_type_code;
      if (db == NULL) opendb();
      datum key;
-     key.dptr = tostring(t);
+     key.dptr = (char*)tostring(t);
      key.dsize = strlen(key.dptr);
      datum value = gdbm_fetch(db,key);
      int n;
@@ -1415,7 +1415,7 @@ static node chklhs(node e, scope v){
 	  if (!(s->body.symbol.flags & export_F)) {
 	       s->body.symbol.flags |= export_F;
      	       if (s->body.symbol.flags & intern_F) {
-		    s->body.symbol.Cname = totoken(tostring(s));
+       	            s->body.symbol.Cname = totoken((char*)tostring(s));
 		    s->body.symbol.Cname = prefixify(v->previous->current_package,s->body.symbol.Cname);
 		    s->body.symbol.Cname = uniquify(s->body.symbol.Cname);
 		    exportit(s,v);
@@ -1431,7 +1431,7 @@ static node chklhs(node e, scope v){
 	  assert(issym(s));
 	  s->body.symbol.flags |= import_F;
 	  if ((s->body.symbol.flags & intern_F)) {
-	       s->body.symbol.Cname = totoken(tostring(s));
+      	       s->body.symbol.Cname = totoken((char*)tostring(s));
 	       s->body.symbol.Cname = prefixify(v->previous->current_package,s->body.symbol.Cname);
 	       s->body.symbol.Cname = uniquify(s->body.symbol.Cname);
 	       exportit(s,v);
@@ -2439,7 +2439,7 @@ static node chkheader(node e, scope v) {
 
 node leftOperator(node e) {
      int prty = atoi(tostring(cadr(e)));
-     char *str = tostring(caddr(e));
+     char *str = (char*)tostring(caddr(e));
      if (ERROR == setopleft(prty,str)) {
 	  errorpos(e,"invalid operator definition");
 	  }
@@ -2448,7 +2448,7 @@ node leftOperator(node e) {
 
 node rightOperator(node e) {
      int prty = atoi(tostring(cadr(e)));
-     char *str = tostring(caddr(e));
+     char *str = (char*)tostring(caddr(e));
      if (ERROR == setopright(prty,str))
 	  errorpos(e,"invalid operator definition");
      return e;
@@ -2456,7 +2456,7 @@ node rightOperator(node e) {
 
 node prefixOperator(node e) {
      int prty = atoi(tostring(cadr(e)));
-     char *str = tostring(caddr(e));
+     char *str = (char*)tostring(caddr(e));
      if (ERROR == setopprefix(prty,str))
 	  errorpos(e,"invalid operator definition");
      return e;
@@ -2570,7 +2570,7 @@ static node chk_use(node e, scope v){
      fresh = p == NULL;
      if (fresh) {
 	  char *pathopened = NULL;
-	  if (!sigreadfile(tostring(name),&pathopened)) {
+	  if (!sigreadfile((char*)tostring(name),&pathopened)) {
 	       errorpos(CADR(e), "undefined package (no *.sig file found)");
 	       return bad__K;
 	       }

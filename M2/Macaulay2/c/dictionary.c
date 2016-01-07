@@ -4,8 +4,7 @@
 #define extern
 #include "dictionary.h"
 #undef extern
-
-static node hash_buckets[7313];
+node* hash_buckets;
 
 char *Csymbols[] = {
      "NULL", "stdout", "stdin", "stderr", "flush", "select", 
@@ -356,12 +355,12 @@ void internsymbol(node s, scope v){
 	  char *Cname;
 	  assertpos(issym(s),s);
 	  if (s->body.symbol.flags & literal_F) {
-	    Cname = tostring(s); /* no totoken here? */
+	    Cname = (char*)tostring(s); /* no totoken here? */
 	    if (!(s->body.symbol.flags & nouniquify_F))
 	      Cname = uniquify(Cname);
 	  }
 	  else {
-	    Cname = totoken(tostring(s));
+	    Cname = totoken((char*)tostring(s));
 	    if (s->body.symbol.flags & (export_F | import_F))
 	      Cname = prefixify(s->body.symbol.package,Cname);
 	    if (!(s->body.symbol.flags & nouniquify_F))

@@ -18,16 +18,16 @@
 struct POS { char *filename; short lineno, column; } ;
 typedef struct NODE *node;
 typedef struct SCOPE *scope;
-scope global_scope;
+extern scope global_scope;
 typedef node (*chkfun) (node,scope);
 
 #define clear_memory(v) memset(v,0,sizeof(*v))
-
+enum TAG {
+  cons_tag, position_tag, unique_string_tag, string_tag, int_const_tag,
+  double_const_tag, type_tag, char_const_tag,
+  string_const_tag, symbol_tag };
 struct NODE {
-     enum TAG {
-	  cons_tag, position_tag, unique_string_tag, string_tag, int_const_tag,
-	  double_const_tag, type_tag, char_const_tag,
-	  string_const_tag, symbol_tag } tag;
+     enum TAG tag;
      union BODY {
      	  struct INT_CONST { char *contents; } int_const;
 	  struct CHAR_CONST { char contents; } char_const;

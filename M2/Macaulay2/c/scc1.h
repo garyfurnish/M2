@@ -16,13 +16,13 @@ extern char *strperm(const char *);
 extern node newnode1(unsigned int, enum TAG);
 extern void fail (char *, int);
 extern const struct POS empty_pos;
-extern char *intToString(int);
+extern const char *intToString(int);
 extern int substr(char *, char *);
 extern int strequaln(char *, char *, unsigned int);    
 extern char *tail(char *);
 extern char *BaseName(char *) ;
-extern char *newsuffix(char *, char *);
-extern char *newsuffixbase(char *, char *);
+extern char *newsuffix(const char *, const char *);
+extern char *newsuffixbase(const char *, const char *);
 
 /*
 # Local Variables:

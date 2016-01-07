@@ -2,7 +2,9 @@
 
 #if 1
 #define assertpos(e,f)     ((e) ? 0 : failpos(__FILE__, __LINE__,f))
+#ifndef assert
 #define assert(e)          ((e) ? 0 : fail(__FILE__, __LINE__))
+#endif
 #else
 #define assertpos(e,f)     0
 #define assert(e)          0
@@ -11,9 +13,9 @@
 extern void fail(char *, int);
 extern void failpos(char *, int, node);
 extern int n_errors;
-void fatal(char *s,...);
-void error(char *s,...);
-void warning(char *s,...);
+void fatal(const char *s,...);
+void error(const char *s,...);
+void warning(const char *s,...);
 void fatalpos(node p, char *s,...);
 void errorpos(node p, char *s,...);
 void warningpos(node p, char *s,...);
