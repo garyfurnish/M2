@@ -483,7 +483,26 @@ static void cprintdefine(node t,bool definitions) {
 	  cprintlist(functionargtypes(typ));
 	  }
      else if(!(flags & threadLocal_F)){
+       bool need_cgc=false;
+       if(!istype(typ))
+	 abort();
+       if (isortype(typ)) {
+	 need_cgc=true;
+	 }
+       if(isarraytype(typ) || istaggedarraytype(typ) || isobjecttype(typ) || istaggedobjecttype(typ))
+	 {
+	   need_cgc=true;
+	 }
+       if((flags&global_F) && need_cgc)
+	 {
+	   put("::cgc1::cgc_root_pointer2_converting_t<");
+	 }
 	  cprint(typ);
+	  if((flags&global_F) && need_cgc)
+	    {
+	      put(">");
+	    }
+
 	  put(" ");
 	  cprint(t);
 	  }

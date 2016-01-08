@@ -1,5 +1,5 @@
 /* this file contains all initializations needed to get going, even if Macaulay2_main() is not called at all */
-
+#include <cstddef>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,9 +28,9 @@ static void init_gc(void) {
      GC_INIT();
      }
 
-void *malloc_function (size_t new) {
-     void *p = malloc(new);
-     if (p == NULL) outofmem2(new);
+void *malloc_function (size_t sz) {
+     void *p = malloc(sz);
+     if (p == NULL) outofmem2(sz);
 #    ifdef DEBUG
      trapchk(p);
 #    endif
@@ -44,10 +44,10 @@ void free_function (void *s, size_t old) {
      free(s);
 }
 
-void *realloc_function (void *s, size_t old, size_t new) {
-     void *p = malloc(new);
-     if (p == NULL) outofmem2(new);
-     memcpy(p, s, old<new ? old : new);
+void *realloc_function (void *s, size_t old, size_t sz) {
+     void *p = malloc(sz);
+     if (p == NULL) outofmem2(sz);
+     memcpy(p, s, old<sz ? old : sz);
      free(s);
 #    ifdef DEBUG
      trapchk(p);

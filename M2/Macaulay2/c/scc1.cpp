@@ -136,6 +136,7 @@ static const char declarations_header[] = "\
 #endif\n\
 \n\
 #if defined(__cplusplus)\n\
+#include <cgc1/cgc1.hpp>\n\
   extern \"C\" {\n\
 #endif\n\
 \n\
@@ -162,6 +163,9 @@ static const char declarations_trailer[] = "\
 static const char code_header[] = "\
 #include \"scc-core.h\"\n\
 #include \"../system/supervisorinterface.h\"\n\
+#if defined(__cplusplus)\n\
+#include <cgc1/cgc1.hpp>\n\
+#endif\n\
 ";
 
 static void readsetup(scope v){

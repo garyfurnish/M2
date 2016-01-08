@@ -1,5 +1,6 @@
 -- this file is small, so the exported definitions can be imported into the engine
 declarations "
+    #include <cstddef>
     #include <math.h>
     #include <gmp.h>
     #include <mpfr.h>

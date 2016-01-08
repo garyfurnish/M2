@@ -245,19 +245,19 @@ export dbmcheck(ret:int):Expr := (
      if ret == -1 then buildErrorPacket(dbmstrerror())
      else Expr(ZZcell(toInteger(ret))));
 export dbmopenin(filename:string):Expr := (
-     mutable := false;
+     Mutable := false;
      filename = expandFileName(filename);
-     handle := dbmopen(filename,mutable);
+     handle := dbmopen(filename,Mutable);
      if handle == -1 
      then buildErrorPacket(dbmstrerror() + " : " + filename)
-     else Expr(Database(filename,nextHash(),handle,true,mutable)));
+     else Expr(Database(filename,nextHash(),handle,true,Mutable)));
 export dbmopenout(filename:string):Expr := (
-     mutable := true;
+     Mutable := true;
      filename = expandFileName(filename);
-     handle := dbmopen(filename,mutable);
+     handle := dbmopen(filename,Mutable);
      if handle == -1 
      then buildErrorPacket(dbmstrerror() + " : " + filename)
-     else Expr(Database(filename,nextHash(),handle,true,mutable)));
+     else Expr(Database(filename,nextHash(),handle,true,Mutable)));
 export dbmclose(f:Database):Expr := (
      if !f.isopen then return buildErrorPacket("database already closed");
      dbmclose(f.handle);

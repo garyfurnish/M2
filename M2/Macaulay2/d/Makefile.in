@@ -86,7 +86,7 @@ endif
 pari-c.o: ../../include/M2/config.h ../../config.status
 endif
 
-pthread-tmp.c : SCCFLAGS += -noline
+pthread-tmp.cc : SCCFLAGS += -noline
 
 ## the problem with this is that it can make "make" think the targets were made:
 # actors4-tmp.c actors5-tmp.c basic-tmp.c interface-tmp.c interface2-tmp.c objects-tmp.c : ../e/engine.h ../e/rand.h
