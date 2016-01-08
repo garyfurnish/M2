@@ -9,7 +9,7 @@
 #include "../d/M2mem.h"
 #include "../d/debug.h"
 #endif
-
+extern "C" {
 void mpfc_init_set(gmp_CC result, const_gmp_CC a)
 {
   result->re = getmemstructtype(gmp_RR);
@@ -403,7 +403,7 @@ void mpfc_sqrt(gmp_CC result, const_gmp_CC a)
   }
 #endif
   }
-
+}
 
 // Local Variables:
 // compile-command: "make -C $M2BUILDDIR/Macaulay2/e "

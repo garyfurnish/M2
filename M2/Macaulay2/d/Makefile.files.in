@@ -11,7 +11,8 @@ M2_OBJECTS += debug.o
 endif
 M2_OPTCFILES += M2inits1.cc M2inits2.cc M2inits3.cc 
 M2_CFILES += gmp_aux.c 
-M2_LASTCFILES += M2types.c scclib.cpp M2lib.cpp M2mem.c gdbm_interface.cpp
+M2_LASTCFILES += M2types.c M2mem.c
+M2_LASTCPPFILES += scclib.cpp M2lib.cpp gdbm_interface.cpp
 M2_CFILES += main.c 
 M2_MADECFILES := startup.c
 M2_OBJECTS += $(M2_MADECFILES:.c=.o)
@@ -40,7 +41,7 @@ M2_DFILES += gmp.dd
 M2_DFILES += engine.dd
 ifeq (@XML@,yes)
 M2_DFILES += xml.dd
-M2_LASTCFILES += xml-c.cpp
+M2_LASTCPPFILES += xml-c.cpp
 else
 M2_SRCFILES += xml.dd xml-c.cpp
 endif
@@ -125,11 +126,15 @@ M2_DNAMES := $(patsubst %.d, %, $(patsubst %.dd, %, $(M2_DFILES)))
 M2_OBJECTS += $(M2_CFILES:.c=.o)
 M2_OBJECTS += M2-factory.o
 M2_OBJECTS += $(M2_LASTCFILES:.c=.o)
+M2_OBJECTS += $(M2_LASTCCFILES:.cc=.o)
+M2_OBJECTS += $(M2_LASTCPPFILES:.cpp=.o)
 M2_SRCFILES += $(M2_OPTCFILES) $(M2_CFILES) M2inits.cpp
 M2_SRCFILES += $(M2_CCFILES)
 M2_SRCFILES += $(M2_HFILES)
 M2_SRCFILES += $(M2_DFILES)
 M2_SRCFILES += $(M2_LASTCFILES)
+M2_SRCFILES += $(M2_LASTCCFILES)
+M2_SRCFILES += $(M2_LASTCPPFILES)
 # Local Variables:
 # mode: Makefile
 # compile-command: "echo \"make: Entering directory \\`$M2BUILDDIR/Macaulay2/d'\" && make -C $M2BUILDDIR/Macaulay2/d Makefile.files TAGS "

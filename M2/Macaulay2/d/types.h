@@ -140,6 +140,9 @@ void *sbrk();		/* not really ansi standard, sigh */
 #define ERROR (-1)      /* in Windows NT there is a file that sets ERROR to 0 */
 
 #include <scc-core.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define FATAL(s) fatal("%s:%d: fatal error: %s",__FILE__,__LINE__,s)
 
 extern char current_date[];
@@ -152,7 +155,6 @@ extern char *gnu_get_libc_version();
 #endif
 
 #include "../dumpdata/dumpdata.h"
-
  /* set this jump and the flag below if the handler should always jump; e.g., for interrupting a slow 3rd party or system library routine */
  #ifdef HAVE_SIGLONGJMP
   extern sigjmp_buf interrupt_jump;
@@ -161,7 +163,9 @@ extern char *gnu_get_libc_version();
  #endif
 extern bool interrupt_jump_set;
 extern int reading_from_readline;
-
+#ifdef __cplusplus
+}
+#endif
 /*
 // Local Variables:
 // compile-command: "echo \"make: Entering directory \\`$M2BUILDDIR/Macaulay2/d'\" && make -C $M2BUILDDIR/Macaulay2/d "

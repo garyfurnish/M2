@@ -12,7 +12,7 @@ typedef struct MAP {
 } *map;
 
 extern int nummaps(), haveDumpdata();
-extern int getmaps(int nmaps, struct MAP[nmaps]);
+extern int getmaps(int nmaps, struct MAP);
 extern int isNotCheckable(map);
 
 #endif

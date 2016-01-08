@@ -7,14 +7,15 @@
 
 /******************************************************/
 /*these next lines added by MES, July 2002, to use our gc routines..*/
-#include "engine-includes.hpp"
+//#include "engine-includes.hpp"
+#include <cgc1/gc.h>
 #if 0
 #include <M2/config.h>
 #include <M2/gc-include.h>
 
 #include "../d/M2mem.h"
 #endif
-#define ALLOC getmem
+#define ALLOC GC_MALLOC
 #define  NEW(p) ((p) = (void *) ALLOC((long)sizeof *(p)))
 #define FREE(ptr) ((void)(GC_FREE((ptr)), (ptr) = 0))
 /******************************************************/

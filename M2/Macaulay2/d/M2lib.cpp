@@ -37,11 +37,15 @@
 #define ADDR_NO_RANDOMIZE 0x0040000
 #endif
 
+#include "../system/supervisorinterface.h"
+
+
+extern void clean_up();
+
+extern "C" {
 #ifdef HAVE_PERSONALITY
 extern long personality(unsigned long persona);
 #endif
-
-#include "../system/supervisorinterface.h"
 
 
 static void ignore(int);
@@ -523,7 +527,6 @@ int register_fun(int *count, char *filename, int lineno, char *funname) {
     #error "no environment variable available"
 #endif
 
-extern void clean_up();
 extern void init_readline_variables();
 extern char *GC_stackbottom;
 extern void arginits(int, const char **);
@@ -617,9 +620,7 @@ int have_arg(char **argv, const char *arg) {
      return FALSE;
      }
 
-int Macaulay2_main(argc,argv)
-int argc; 
-char **argv;
+int Macaulay2_main(int argc,const char**argv)
 {
 
      int volatile envc = 0;
@@ -654,7 +655,7 @@ char **argv;
 	       personality(oldpersonality | ADDR_NO_RANDOMIZE);
 	       newpersonality = personality(-1);
 	       personality(oldpersonality | ADDR_NO_RANDOMIZE);	/* just in case the previous line sets the personality to -1, which can happen */
-	       if ((newpersonality & ADDR_NO_RANDOMIZE) != 0) return execvp(argv[0],argv);
+	       if ((newpersonality & ADDR_NO_RANDOMIZE) != 0) return execvp(argv[0],const_cast<char* const*>(argv));
 	  }
 	  else personality(oldpersonality);
      }
@@ -756,14 +757,14 @@ char **argv;
      }
 
      signal(SIGPIPE,SIG_IGN);
-     have_arg_no_int = have_arg(argv,"--int");
+     have_arg_no_int = have_arg(const_cast<char**>(argv),"--int");
      if (have_arg_no_int)
 	  rl_catch_signals = FALSE; /* tell readline not to catch signals, such as SIGINT */
 
      system_handleInterruptsSetup(TRUE);
      
-     vargs = GC_MALLOC_UNCOLLECTABLE(sizeof(struct saveargs));
-     vargs->argv=saveargv;
+     vargs = reinterpret_cast<struct saveargs*>(GC_MALLOC_UNCOLLECTABLE(sizeof(struct saveargs)));
+     vargs->argv=const_cast<char**>(saveargv);
      vargs->argc=argc;
      vargs->envp=saveenvp;
      vargs->envc = envc;
@@ -776,24 +777,6 @@ char **argv;
      return 0;
      }
 
-void clean_up(void) {
-     extern void close_all_dbms();
-     close_all_dbms();
-     while (pre_final_list != NULL) {
-	  pre_final_list->fun();
-	  pre_final_list = pre_final_list->next;
-	  }
-     while (final_list != NULL) {
-	  final_list->fun();
-	  final_list = final_list->next;
-	  }
-#ifdef HAVE_PYTHON
-     if (Py_IsInitialized()) Py_Finalize();
-#endif
-#    ifndef NDEBUG
-     trap();
-#    endif
-     }
 
 void scclib__prepare(void) {}
 
@@ -877,6 +860,29 @@ int system_randomint(void) {
 #else
      return rawRandomInt(2<<31-1);
 #endif
+     }
+}
+extern "C" {
+  extern void close_all_dbms();
+}
+
+//end c linkage
+void clean_up(void) {
+     close_all_dbms();
+     while (pre_final_list != NULL) {
+	  pre_final_list->fun();
+	  pre_final_list = pre_final_list->next;
+	  }
+     while (final_list != NULL) {
+	  final_list->fun();
+	  final_list = final_list->next;
+	  }
+#ifdef HAVE_PYTHON
+     if (Py_IsInitialized()) Py_Finalize();
+#endif
+#    ifndef NDEBUG
+     trap();
+#    endif
      }
 
 /*

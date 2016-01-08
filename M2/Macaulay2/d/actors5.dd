@@ -2069,7 +2069,7 @@ GCstats(e:Expr):Expr := (
 setupfun("GCstats",GCstats);
 
 header "
-extern void set_gftable_dir(char *); /* defined in library factory, as patched by us */
+extern \"C\" {extern void set_gftable_dir(char *); /* defined in library factory, as patched by us */}
 ";
 setFactoryGFtableDirectory(e:Expr):Expr := (
      when e is d:stringCell do (
@@ -2088,7 +2088,7 @@ serialNumber(e:Expr):Expr := (
      else WrongArg("a symbol or a mutable hash table or list"));
 setupfun("serialNumber",serialNumber);
 
-header "extern void TS_Test();";
+header "extern \"C\" {extern void TS_Test();}";
 threadTest(e:Expr):Expr := (
      Ccode(void, "TS_Test()");
      nullE);

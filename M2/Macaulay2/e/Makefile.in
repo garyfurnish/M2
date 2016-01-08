@@ -29,7 +29,7 @@ ifneq (@ETAGS@,false)
 all: tags
 endif
 tags:: @srcdir@/TAGS
-@srcdir@/TAGS: Makefile.in @srcdir@/*.hpp @srcdir@/*.h @srcdir@/*.cpp @srcdir@/*.c \
+@srcdir@/TAGS: Makefile.in @srcdir@/*.hpp @srcdir@/*.h @srcdir@/*.cpp \
 		 @srcdir@/f4/*.hpp @srcdir@/f4/*.cpp \
 		 @srcdir@/unit-tests/*.cpp \
 		 @srcdir@/../e-includes/statuscodes

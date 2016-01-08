@@ -20,7 +20,7 @@
 
 /* to get IM2_initialize() : */
 #include "engine.h"
-
+extern "C" {
 char *progname;
 void arginits(int argc, char **argv) { progname = argv[0]; }
 
@@ -112,7 +112,7 @@ void M2inits_linker_dummy(void) {
 void scc_core_prepare() {
   M2inits();
 }
-
+}
 /*
  Local Variables:
  compile-command: "echo \"make: Entering directory \\`$M2BUILDDIR/Macaulay2/d'\" && make -C $M2BUILDDIR/Macaulay2/d "

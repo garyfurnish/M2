@@ -9,7 +9,7 @@
 #include "debug.h"
 
 #include "../system/supervisorinterface.h"
-
+extern "C" {
 int reading_from_readline = FALSE;
 
 extern void stack_trace();
@@ -646,31 +646,31 @@ int system_unlink(M2_string name) {
 
 int system_link(M2_string oldfilename,M2_string newfilename) {
   char *old = M2_tocharstar(oldfilename);
-  char *new = M2_tocharstar(newfilename);
+  char *new_ = M2_tocharstar(newfilename);
   int r = 
     #ifdef HAVE_LINK
-    link(old,new)
+    link(old,new_)
     #else
     -1
     #endif
     ;
   GC_FREE(old);
-  GC_FREE(new);
+  GC_FREE(new_);
   return r;
 }
 
 int system_symlink(M2_string oldfilename,M2_string newfilename) {
   char *old = M2_tocharstar(oldfilename);
-  char *new = M2_tocharstar(newfilename);
+  char *new_ = M2_tocharstar(newfilename);
   int r = 
     #ifdef HAVE_SYMLINK
-    symlink(old,new)
+    symlink(old,new_)
     #else
     -1
     #endif
     ;
   GC_FREE(old);
-  GC_FREE(new);
+  GC_FREE(new_);
   return r;
 }
 
@@ -999,8 +999,8 @@ int system_strncmp(M2_string s,M2_string t,int n) {
 #define SYNTAX_FLAGS ((RE_SYNTAX_POSIX_EXTENDED | (ignorecase ? RE_ICASE : 0)) & ~RE_DOT_NEWLINE)
 
 struct M2_string_struct noErrorMessage;
-M2_string system_noErrorMessage = &noErrorMessage;
-M2_string system_regexmatchErrorMessage = &noErrorMessage;
+::cgc1::cgc_root_pointer2_converting_t<M2_string> system_noErrorMessage = &noErrorMessage;
+::cgc1::cgc_root_pointer2_converting_t<M2_string> system_regexmatchErrorMessage = &noErrorMessage;
 
 static M2_string last_pattern = NULL;
 
@@ -1095,7 +1095,7 @@ M2_string system_regexreplace(M2_string pattern, M2_string replacement, M2_strin
 	 while (TRUE) {
 	      char *q = p;
 	      while (TRUE) {
-		   q = memchr(q,'\\',plen-(q-p));
+		   q = reinterpret_cast<char*>(memchr(q,'\\',plen-(q-p)));
 		   if (q==NULL || isdigit((int)q[1])) break;
 		   q++;
 	      }
@@ -1157,7 +1157,7 @@ M2_ArrayString system_regexselect(M2_string pattern, M2_string replacement, M2_s
 	 while (TRUE) {
 	      char *q = p;
 	      while (TRUE) {
-		   q = memchr(q,'\\',plen-(q-p));
+		   q = reinterpret_cast<char*>(memchr(q,'\\',plen-(q-p)));
 		   if (q==NULL || isdigit((int)q[1])) break;
 		   q++;
 	      }
@@ -1203,8 +1203,8 @@ bool gotArg(const char *arg, const char **argv) {
   return FALSE;
 }
 
-void do_nothing () { }
-
+}
+  void do_nothing () { }
 /*
 // Local Variables:
 // compile-command: "echo \"make: Entering directory \\`$M2BUILDDIR/Macaulay2/d'\" && make -C $M2BUILDDIR/Macaulay2/d "

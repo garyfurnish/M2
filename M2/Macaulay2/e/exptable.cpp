@@ -15,7 +15,7 @@ unsigned int exp_hash(const void * x)
      /* exp has type 'exponent' */
 {
   int i;
-  const int *xx = x;
+  const int *xx = reinterpret_cast<const int*>(x);
   unsigned int result = 0;
   for (i=0; i<table_nvars; i++)
     result += (xx[i] << 3);
@@ -26,8 +26,8 @@ int exp_cmp(const void * x, const void * y)
      /* x, y are both of type 'exponent' */
 {
   int i;
-  const int * xx = x;
-  const int * yy = y;
+  const int * xx = reinterpret_cast<const int*>(x);
+  const int * yy = reinterpret_cast<const int*>(y);
   for (i=0; i<table_nvars; i++)
     {
       int cmp = xx[i] - yy[i];
@@ -39,8 +39,7 @@ int exp_cmp(const void * x, const void * y)
 exponent_table *exponent_table_new(int hint,
                                    int nvars)
 {
-  exponent_table *result;
-  NEW(result);
+  exponent_table *result = reinterpret_cast<exponent_table*>(GC_MALLOC(sizeof(exponent_table)));
   result->nvars = nvars;
   result->table = Table_new(hint, exp_cmp, exp_hash);
   return result;
