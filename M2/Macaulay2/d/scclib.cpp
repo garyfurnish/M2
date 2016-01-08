@@ -45,6 +45,7 @@ va_dcl
 void fatalarrayindex(int indx, int len, const char *file, int line, int column) {
      char msg[100];
      sprintf(msg,"array index %d out of bounds 0 .. %d",indx,len-1);
+     abort();
      if (column == -1) {
      	  fatal(errfmtnc,file,line,msg);
 	  }

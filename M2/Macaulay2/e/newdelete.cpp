@@ -7,7 +7,7 @@
    not have libgc regard their gmp integers as garbage and collect them */
 /* Nevertheless, in our code we prefer to use the classes defined below, one of which offers the use of GC_MALLOC_ATOMIC() */
 /* The static inline versions are defined in newdelete.hpp */
-void* operator new    ( size_t size ) { void *p = GC_MALLOC_UNCOLLECTABLE( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
+/*void* operator new    ( size_t size ) { void *p = GC_MALLOC_UNCOLLECTABLE( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
 void* operator new [] ( size_t size ) { void *p = GC_MALLOC_UNCOLLECTABLE( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
 void* operator new    ( size_t size, const std::nothrow_t &t ) { void *p = GC_MALLOC_UNCOLLECTABLE( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
 void* operator new [] ( size_t size, const std::nothrow_t &t ) { void *p = GC_MALLOC_UNCOLLECTABLE( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
@@ -16,7 +16,7 @@ void operator delete    ( void* obj ) { TRAPCHK(obj); if (obj != NULL) GC_FREE( 
 void operator delete [] ( void* obj ) { TRAPCHK(obj); if (obj != NULL) GC_FREE( obj ); }
 void operator delete    ( void* obj, const std::nothrow_t &t ) { TRAPCHK(obj); if (obj != NULL) GC_FREE( obj ); }
 void operator delete [] ( void* obj, const std::nothrow_t &t ) { TRAPCHK(obj); if (obj != NULL) GC_FREE( obj ); }
-
+*/
 #if 0
 
     This is from /usr/include/c++/4.2.1/new :

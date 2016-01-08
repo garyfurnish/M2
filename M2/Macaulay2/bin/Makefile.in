@@ -134,7 +134,7 @@ else
 MAYBESTATIC = $(UNSTATIC)
 endif
 
-M2_LIBRARIES :=
+M2_LIBRARIES := -lcgc1 
 
 ifeq (@STATIC@,yes)
 M2_LIBRARIES += $(MAYBESTATIC)

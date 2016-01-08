@@ -11,8 +11,8 @@ M2_OBJECTS += debug.o
 endif
 M2_OPTCFILES += M2inits1.cc M2inits2.cc M2inits3.cc 
 M2_CFILES += gmp_aux.c 
-M2_LASTCFILES += M2types.c M2mem.c
-M2_LASTCPPFILES += scclib.cpp M2lib.cpp gdbm_interface.cpp
+M2_LASTCFILES += M2types.c
+M2_LASTCPPFILES += scclib.cpp M2lib.cpp M2mem.cpp gdbm_interface.cpp
 M2_CFILES += main.c 
 M2_MADECFILES := startup.c
 M2_OBJECTS += $(M2_MADECFILES:.c=.o)

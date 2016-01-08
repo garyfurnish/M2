@@ -5,6 +5,7 @@
 
 #define GC_REDIRECT_TO_LOCAL
 // get declarations of outofmem and getmem
+#include <cgc1/cgc1.hpp>
 #include "../d/M2mem.h"
 #include "../d/debug.h"
 
@@ -42,11 +43,11 @@
 #define GETMEM_ATOMIC(T,size) reinterpret_cast<T>(getmem_atomic(size))
 
 struct our_new_delete {
-  static inline void* operator new    ( size_t size ) { void *p = GC_MALLOC( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
-  static inline void* operator new [] ( size_t size ) { void *p = GC_MALLOC( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
+  static inline void* operator new    ( size_t size ) { void *p = ::cgc1::cgc_malloc( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
+  static inline void* operator new [] ( size_t size ) { void *p = ::cgc1::cgc_malloc( size ); if (p == NULL) outofmem2(size); TRAPCHK(p); return p; }
 
-  static inline void operator delete    ( void* obj ) { TRAPCHK(obj); if (obj != NULL) GC_FREE( obj ); }
-  static inline void operator delete [] ( void* obj ) { TRAPCHK(obj); if (obj != NULL) GC_FREE( obj ); }
+  static inline void operator delete    ( void* obj ) { TRAPCHK(obj); if (obj != NULL) ::cgc1::cgc_free( obj ); }
+  static inline void operator delete [] ( void* obj ) { TRAPCHK(obj); if (obj != NULL) ::cgc1::cgc_free( obj ); }
 
   static inline void* operator new    ( size_t size, void *existing_memory ) { return existing_memory; }
   static inline void* operator new [] ( size_t size, void *existing_memory ) { return existing_memory; }
@@ -71,8 +72,8 @@ struct our_new_delete {
 #include <gc/gc_allocator.h>
 
 // struct gc_malloc_alloc {
-//   static void* allocate(size_t n) { void* p = GC_MALLOC(n); if (p == NULL) outofmem2(n); return p; }
-//   static void deallocate(void* p, size_t /* n */) { GC_FREE(p); }
+//   static void* allocate(size_t n) { void* p = ::cgc1::cgc_malloc(n); if (p == NULL) outofmem2(n); return p; }
+//   static void deallocate(void* p, size_t /* n */) { ::cgc1::cgc_free(p); }
 //   static void* reallocate(void* p, size_t /* old size */, size_t newsize) { void* r = GC_REALLOC(p, newsize); if (NULL == r) outofmem2(newsize); return r; }
 // };
 

@@ -49,6 +49,7 @@ run-overflow-test : overflow-test
 	touch $@
 clean :: ; rm -f run-overflow-test
 pi overflow-test : overflow.o ../d/debug.o
+pi-overflow-test : LDLIBS += -lcgc1 -lmcppalloc_slab_allocator
 clean :: ; rm -f overflow-test
 pi : pi.h
 
@@ -105,6 +106,7 @@ distclean: clean; rm -f Makefile @srcdir@/TAGS
 
 pi-demangled.s pi-test.s pi-test.o pi.s pi.E pi.o : pi.h pi-masks.h
 pi-test : exceptions.o overflow.o
+pi-test : LDLIBS += -lcgc1 -lmcppalloc_slab_allocator
 # check :: pi-test-run
 pi-test-run : pi-test ; ./pi-test
 pi-masks.h : pi-genmask

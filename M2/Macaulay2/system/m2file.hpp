@@ -21,7 +21,7 @@ Then threads can use stdio without running all over each other.  This is especia
 struct M2FileThreadState
 {
   //State of the file output for the given thread
-  stdio0_fileOutputSyncState syncState;
+  stdio0_fileOutputSyncState syncState{0};
 };
 struct M2File
 {
@@ -32,22 +32,22 @@ public:
   M2File(stdio0_fileOutputSyncState fileUnsyncState);
   ~M2File();
   //current thread output mode.  0 is unsync, 1 is sync, 2 is thread exclusive
-  int currentThreadMode; 
+  int currentThreadMode{0}; 
   //list of thread states for thread exclusive mode 
   std::map<pthread_t,struct M2FileThreadState*> threadStates;
   //sync state for unsync or sync mode
-  stdio0_fileOutputSyncState unsyncState;
+  stdio0_fileOutputSyncState unsyncState{0};
   //Mutex for guarding map & internals of file
   pthreadMutex m_MapMutex;
   //For exclusive mode, the thread that currently owns io
   //For sync mode, the thread that currently owns the mutex
-  pthread_t exclusiveOwner;
+  pthread_t exclusiveOwner{0};
   //condition variable for waiting to acquire exclusive ownership
   pthread_cond_t exclusiveChangeCondition;
   //number of times exclusiveOwner acquired
-  size_t  recurseCount;
+  size_t  recurseCount{0};
   //exclusive recurse count
-  size_t exclusiveRecurseCount;
+  size_t exclusiveRecurseCount{0};
   //Function to wait for exclusiveOwner to be current thread.
   void waitExclusiveThread(size_t recurseCounter);
   //Function to wait for exclusiveOwner to be released and then acquire it

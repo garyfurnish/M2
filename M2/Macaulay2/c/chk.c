@@ -99,7 +99,7 @@ static void popscope(scope *vp){
      v->tmpdecls = join(w->tmpdecls,v->tmpdecls);
      v->signature = join(w->signature,v->signature);
      unwind(&w->symbols);
-     //     GC_FREE(w);
+     GC_FREE(w);
      }
 
 static void errorpopscope(scope *vp){

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <cgc1/cgc1.hpp>
 
 #include "types.h"
 #include "M2inits.h"
@@ -10,6 +11,7 @@
   #ifndef USE_THREADS
     #define __thread
   #endif
+extern "C" {
 static __thread bool in_getmem = FALSE;
 static inline void enter_getmem() {
   #if 0
@@ -33,10 +35,10 @@ void outofmem(void) {
      exit(1);
 }
 
-void outofmem2(size_t new) {
+void outofmem2(size_t new_) {
      const char *msg = "\n\n *** out of memory trying to allocate %ld bytes, exiting ***\n";
      static char buf[sizeof(msg) + 100];
-     sprintf(buf,msg,(long)new);
+     sprintf(buf,msg,(long)new_);
      int r = write(STDERR,buf,strlen(buf));
      if (r == ERROR) exit(1);
      exit(1);
@@ -46,7 +48,7 @@ char *getmem(size_t n)
 {
   char *p;
   enter_getmem();
-  p = GC_MALLOC(n);		/* GC_MALLOC clears its memory, but getmem doesn't guarntee to */
+  p = reinterpret_cast<char*>(::cgc1::cgc_malloc(n));		/* ::cgc1::cgc_malloc clears its memory, but getmem doesn't guarntee to */
   if (p == NULL) outofmem2(n);
 #ifdef DEBUG
   memset(p,0xbe,n);		/* fill with 0xbebebebe ... */
@@ -60,25 +62,25 @@ void freememlen(void *s, size_t old) {
 #    ifdef DEBUG
      trapchk(s);
 #    endif
-     GC_FREE(s);
+     ::cgc1::cgc_free(s);
 }
 
 void freemem(void *s) {
 #    ifdef DEBUG
      trapchk(s);
 #    endif
-     GC_FREE(s);
+     ::cgc1::cgc_free(s);
 }
 
 char *getmem_clear(size_t n)
 {
   char *p;
   enter_getmem();
-  p = GC_MALLOC(n);
+  p = reinterpret_cast<char*>(::cgc1::cgc_malloc(n));
   if (p == NULL) outofmem2(n);
   #if 0
   /* 
-     note: GC_MALLOC clears memory before returning.
+     note: ::cgc1::cgc_malloc clears memory before returning.
      If you switch to another memory allocator, you must clear it explicitly with this:
   */
   memset(p,0,n);
@@ -94,7 +96,7 @@ char *getmem_atomic(size_t n)
 {
   char *p;
   enter_getmem();
-  p = GC_MALLOC_ATOMIC(n);
+  p = reinterpret_cast<char*>(::cgc1::cgc_malloc_atomic(n));
   if (p == NULL) outofmem2(n);
 #ifdef DEBUG
   memset(p,0xac,n);		/* fill with 0xacacacac ... */
@@ -108,7 +110,7 @@ char *getmem_malloc(size_t n)
 {
   char *p;
   enter_getmem();
-  p = malloc(n);
+  p = reinterpret_cast<char*>(malloc(n));
   if (p == NULL) outofmem2(n);
 #ifdef DEBUG
   memset(p,0xca,n);		/* fill with 0xcacacaca */
@@ -122,7 +124,7 @@ char *getmem_atomic_clear(size_t n)
 {
   char *p;
   enter_getmem();
-  p = GC_MALLOC_ATOMIC(n);
+  p = reinterpret_cast<char*>(::cgc1::cgc_malloc_atomic(n));
   if (p == NULL) outofmem2(n);
   memset(p,0,n);
 #ifdef DEBUG
@@ -132,47 +134,47 @@ char *getmem_atomic_clear(size_t n)
   return p;
 }
 
-char *getmoremem (char *s, size_t old, size_t new) {
+char *getmoremem (char *s, size_t old, size_t new_) {
      void *p;
      enter_getmem();
-     p = GC_REALLOC(s,new);
-     if (p == NULL) outofmem2(new);
+     p = ::cgc1::cgc_realloc(s,new_);
+     if (p == NULL) outofmem2(new_);
 #    ifdef DEBUG
      trapchk(p);
 #    endif
      exit_getmem();
-     return p;
+     return reinterpret_cast<char*>(p);
      }
 
-char *getmoremem1 (char *s, size_t new) {
+char *getmoremem1 (char *s, size_t new_) {
      void *p;
      enter_getmem();
-     p = GC_REALLOC(s,new);
-     if (p == NULL) outofmem2(new);
+     p = ::cgc1::cgc_realloc(s,new_);
+     if (p == NULL) outofmem2(new_);
 #    ifdef DEBUG
      trapchk(p);
 #    endif
      exit_getmem();
-     return p;
+     return reinterpret_cast<char*>(p);
      }
 
-char *getmoremem_atomic (char *s, size_t old, size_t new) {
+char *getmoremem_atomic (char *s, size_t old, size_t new_) {
      void *p;
      enter_getmem();
-     p = GC_MALLOC_ATOMIC(new);
-     size_t min = old<new ? old : new;
-     if (p == NULL) outofmem2(new);
+     p = ::cgc1::cgc_malloc_atomic(new_);
+     size_t min = old<new_ ? old : new_;
+     if (p == NULL) outofmem2(new_);
      memcpy(p, s, min);
-     GC_FREE(s);
+     ::cgc1::cgc_free(s);
 #    ifdef DEBUG
      {
-       int excess = new - min;
+       int excess = new_ - min;
        if (excess > 0) memset((char *)p+min,0xbe,excess); /* fill with 0xbebebebe */
      }
      trapchk(p);
 #    endif
      exit_getmem();
-     return p;
+     return reinterpret_cast<char*>(p);
      }
 
 /* 
@@ -249,7 +251,7 @@ void *realloc (void *p, size_t n) {
 }
 
 #endif
-
+}
 /*
  Local Variables:
  compile-command: "echo \"make: Entering directory \\`$M2BUILDDIR/Macaulay2/d'\" && make -C $M2BUILDDIR/Macaulay2/d "
