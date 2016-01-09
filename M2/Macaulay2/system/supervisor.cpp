@@ -6,8 +6,10 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <signal.h>
+#include <thread>
 #ifdef USE_CGC1
 #include <cgc1/cgc1.hpp>
+#include <cgc1/gc_allocator.hpp>
 #endif
 
 // We allocate this many threads initially, to save trouble with memory allocation.
@@ -50,14 +52,28 @@ extern "C" {
       return -1;
     }
   }
-
- THREADLOCALDECL(struct atomic_field, interrupts_interruptedFlag);
+  
+  THREADLOCALDECL(struct atomic_field, interrupts_interruptedFlag);
   THREADLOCALDECL(struct atomic_field, interrupts_exceptionFlag);
-  struct ThreadSupervisor* threadSupervisor = 0 ;
+  ::cgc1::cgc_root_pointer_t<struct ThreadSupervisor> threadSupervisor;
+  static bool thread_supervisor_initialize()
+  {
+    //use magic static here.
+    static bool ls_initialized = false;
+    if(!ls_initialized)
+      {
+	threadSupervisor = ::cgc1::make_cgc<ThreadSupervisor>(maxNumThreads);
+	ls_initialized = true;
+	return true;
+      }
+    else
+      return false;
+  }
   void initializeThreadSupervisor()
   {
-    if(NULL==threadSupervisor)
-      threadSupervisor = new ThreadSupervisor(maxNumThreads);
+    if(thread_supervisor_initialize())
+      {
+      }
     assert(threadSupervisor);
     threadSupervisor->m_TargetNumThreads=maxNumThreads;
     threadSupervisor->initialize();
@@ -88,7 +104,7 @@ extern "C" {
   void delThread(pthread_t thread)
   {
     threadSupervisor->m_Mutex.lock();
-    std::map<pthread_t, struct ThreadSupervisorInformation*>::iterator it = threadSupervisor->m_ThreadMap.find(thread);
+    auto it = threadSupervisor->m_ThreadMap.find(thread);
     if(it!=threadSupervisor->m_ThreadMap.end())
       {
 	threadSupervisor->m_ThreadMap.erase(it);
@@ -143,7 +159,7 @@ extern "C" {
 
   struct ThreadTask* createThreadTask(const char* name, ThreadTaskFunctionPtr func, void* userData, int timeLimitExists, time_t timeLimitSeconds, int isM2Task)
   {
-    return new ThreadTask(name,func,userData,(bool)timeLimitExists,timeLimitSeconds,isM2Task);
+    return ::cgc1::make_cgc<ThreadTask>(name,func,userData,(bool)timeLimitExists,timeLimitSeconds,isM2Task);
   }
   void* waitOnTask(struct ThreadTask* task)
   {
@@ -151,8 +167,9 @@ extern "C" {
   }
   void TS_Add_ThreadLocal(int* refno, const char* name)
   {
-    if(NULL == threadSupervisor)
-      threadSupervisor = new ThreadSupervisor(maxNumThreads);
+    if(thread_supervisor_initialize())
+      {
+      }
     assert(threadSupervisor);
     threadSupervisor->m_Mutex.lock();
     if(threadSupervisor->m_ThreadLocalIdPtrSet.find(refno)!=threadSupervisor->m_ThreadLocalIdPtrSet.end())
@@ -224,7 +241,7 @@ ThreadSupervisor::ThreadSupervisor(int targetNumThreads):
   if(pthread_key_create(&m_ThreadSpecificKey,NULL))
     abort();
   //create new thread local memory block
-  m_LocalThreadMemory = new void*[ThreadSupervisor::s_MaxThreadLocalIdCounter];
+  m_LocalThreadMemory = cgc1::cgc_malloc(sizeof(void*)*ThreadSupervisor::s_MaxThreadLocalIdCounter);
   //make really really sure it is zero
   memset(m_LocalThreadMemory,0,sizeof(void*)*ThreadSupervisor::s_MaxThreadLocalIdCounter);
   //set memory block location for main thread.  Main thread doesn't do anything, so not really used.
@@ -238,8 +255,6 @@ ThreadSupervisor::ThreadSupervisor(int targetNumThreads):
     abort();
   //force everything to get done just in case there is some weird GC issue.
   AO_compiler_barrier();
-  //once everything is done initialize statics
-  staticThreadLocalInit();
 }
 
 ThreadSupervisor::~ThreadSupervisor()
@@ -252,19 +267,27 @@ ThreadSupervisor::~ThreadSupervisor()
 }
 void ThreadSupervisor::initialize()
 {
+  //once everything is done initialize statics
+  staticThreadLocalInit();
+
   //initialize premade threads
   for(int i = 0; i < m_TargetNumThreads; ++i)
     {
-      SupervisorThread* thread = new SupervisorThread(i);
+      supervisor_thread_t* thread = ::cgc1::make_cgc<supervisor_thread_t>(i);
       //critical -- we MUST push back before we start.
       m_Threads.push_back(thread);
+      ::std::atomic_thread_fence(::std::memory_order_release);
       thread->start();
     }
+  m_RunningTasks.reserve(10);
 }
 void ThreadSupervisor::_i_finished(struct ThreadTask* task)
 {
   m_Mutex.lock();
-  m_RunningTasks.remove(task);
+  ::std::atomic_thread_fence(::std::memory_order_acq_rel);
+  auto it = ::std::find(m_RunningTasks.begin(),m_RunningTasks.end(),task);
+  if(it!=m_RunningTasks.end())
+    m_RunningTasks.erase(it);
   if(task->m_KeepRunning)
     {
       m_FinishedTasks.push_back(task);
@@ -274,7 +297,8 @@ void ThreadSupervisor::_i_finished(struct ThreadTask* task)
       m_CanceledTasks.push_back(task);
     }
   if(pthread_cond_broadcast(&task->m_FinishCondition))
-    abort();  
+    abort();
+  ::std::atomic_thread_fence(::std::memory_order_acq_rel);
   m_Mutex.unlock();
 }
 void ThreadSupervisor::_i_startTask(struct ThreadTask* task, struct ThreadTask* launcher)
@@ -295,7 +319,7 @@ void ThreadSupervisor::_i_startTask(struct ThreadTask* task, struct ThreadTask* 
 	  m_Mutex.unlock();
 	  return;
 	}
-      std::set<struct ThreadTask*>::iterator it = task->m_Dependencies.find(launcher);
+      auto it = task->m_Dependencies.find(launcher);
       if(it!=task->m_Dependencies.end())
 	{
 	  task->m_Dependencies.erase(launcher);
@@ -344,10 +368,11 @@ struct ThreadTask* ThreadSupervisor::getTask()
   struct ThreadTask* task = m_ReadyTasks.front();
   m_ReadyTasks.pop_front();
   m_RunningTasks.push_back(task);
+  ::std::atomic_thread_fence(::std::memory_order_acq_rel);
   m_Mutex.unlock();
   return task;
 }
-void ThreadTask::run(SupervisorThread* thread)
+void ThreadTask::run(supervisor_thread_t* thread)
 {
   m_Mutex.lock();
   if(!m_KeepRunning)
@@ -373,20 +398,20 @@ void ThreadTask::run(SupervisorThread* thread)
   m_CurrentThread=NULL;
   threadSupervisor->_i_finished(this);
   //cancel stuff_
-  for(std::set<ThreadTask*>::iterator it = m_CancelTasks.begin(); it!=m_CancelTasks.end(); ++it)
+  for(auto it = m_CancelTasks.begin(); it!=m_CancelTasks.end(); ++it)
     threadSupervisor->_i_cancelTask(*it);
   //start stuff
-  for(std::set<ThreadTask*>::iterator it = m_StartTasks.begin(); it!=m_StartTasks.end(); ++it)
+  for(auto it = m_StartTasks.begin(); it!=m_StartTasks.end(); ++it)
     threadSupervisor->_i_startTask(*it,this);
   m_Mutex.unlock();
 }
 
-SupervisorThread::SupervisorThread(int localThreadId):m_KeepRunning(true),m_LocalThreadId(localThreadId)
+supervisor_thread_t::supervisor_thread_t(int localThreadId):m_KeepRunning(true),m_LocalThreadId(localThreadId)
 {
-  m_ThreadLocal = new void*[ThreadSupervisor::s_MaxThreadLocalIdCounter];
+  m_ThreadLocal = reinterpret_cast<void**>(cgc1::cgc_malloc(sizeof(void*)*ThreadSupervisor::s_MaxThreadLocalIdCounter));
   AO_compiler_barrier();
 }
-void SupervisorThread::start()
+void supervisor_thread_t::start()
 {
 #ifndef __CYGWIN__
   const size_t min_stackSize = 8 * 1024 * 1024;
@@ -402,10 +427,10 @@ void SupervisorThread::start()
 #else
   #define StackSizeParameter NULL
 #endif
-  if (pthread_create(&m_ThreadId,StackSizeParameter,SupervisorThread::threadEntryPoint,this))
+  if (pthread_create(&m_ThreadId,StackSizeParameter,supervisor_thread_t::thread_entry_point,this))
     perror("pthread_create: failed"), abort();
 }
-void SupervisorThread::threadEntryPoint()
+void supervisor_thread_t::thread_entry_point()
 {
   #ifdef GETSPECIFICTHREADLOCAL
   if(pthread_setspecific(threadSupervisor->m_ThreadSpecificKey,m_ThreadLocal))

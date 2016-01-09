@@ -1,6 +1,7 @@
 #ifndef _system_supervisorinterface_h_
 #define _system_supervisorinterface_h_
 
+#include <cgc1/cgc1.hpp>
 #include <M2/gc-include.h>
 
 typedef void* (*ThreadTaskFunctionPtr)(void*);
@@ -61,7 +62,7 @@ extern "C" {
   //Private interface functions
   extern THREADLOCALDECL(struct atomic_field, interrupts_interruptedFlag);
   extern THREADLOCALDECL(struct atomic_field, interrupts_exceptionFlag);
-  extern struct ThreadSupervisor* threadSupervisor;
+  extern ::cgc1::cgc_root_pointer_t<struct ThreadSupervisor> threadSupervisor;
   struct parse_ThreadCellBody_struct;
   void createThreadGCMemory();
   extern void delThread(pthread_t thread);
@@ -92,7 +93,7 @@ extern "C" {
   }
 #ifdef GETSPECIFICTHREADLOCAL
   extern void TS_Add_ThreadLocal(int* refno, const char* name);
-  static void** TS_Get_LocalArray() {  return (void**)pthread_getspecific(*(pthread_key_t*)threadSupervisor); }
+  static void** TS_Get_LocalArray() {  return (void**)pthread_getspecific(*(pthread_key_t*)threadSupervisor.ptr()); }
   static void** TS_Get_Local(int refno) { return &TS_Get_LocalArray()[refno]; }
 #endif
   

@@ -1,6 +1,6 @@
 #ifndef _system_supervisor_h_
 #define _system_supervisor_h_
-
+#include <cgc1/cgc1.hpp>
 /* this next bit is copied from ../d/atomic.d, but it should be include, instead */
 
   #include <atomic_ops.h>
@@ -23,7 +23,7 @@
 typedef struct parse_ThreadCellBody_struct * parse_ThreadCellBody;
 
 typedef void* (*ThreadTaskFunctionPtr)(void*);
-class SupervisorThread;
+class supervisor_thread_t;
 //not garbage collected
 struct ThreadTask
 {
@@ -50,25 +50,25 @@ struct ThreadTask
   ///Is the task currently running
   bool m_Running;
   ///tasks to cancel upon completion
-  std::set<ThreadTask*> m_CancelTasks;
+  std::set<ThreadTask*,::std::less<>,::cgc1::gc_allocator_t<ThreadTask*>> m_CancelTasks;
   ///tasks to start upon completion
-  std::set<ThreadTask*> m_StartTasks;
+  std::set<ThreadTask*,::std::less<>,::cgc1::gc_allocator_t<ThreadTask*>> m_StartTasks;
   ///Is there a time limit for this task
   bool m_TimeLimit;
   ///Time limit in seconds for this task.  
   time_t m_Seconds;
   ///Dependencies that must be satisfied in order to start
-  std::set<ThreadTask*> m_Dependencies;
+  std::set<ThreadTask*,::std::less<>,::cgc1::gc_allocator_t<ThreadTask*>> m_Dependencies;
   ///Dependencies that have been finished
-  std::set<ThreadTask*> m_FinishedDependencies;
+  std::set<ThreadTask*,::std::less<>,::cgc1::gc_allocator_t<ThreadTask*>> m_FinishedDependencies;
   ///Mutex for accessing task
   pthreadMutex m_Mutex;
   ///run task
-  void run(SupervisorThread* thread);
+  void run(supervisor_thread_t* thread);
   ///Condition variable for task
   pthread_cond_t m_FinishCondition;
   ///Current thread running on
-  SupervisorThread* m_CurrentThread;
+  supervisor_thread_t* m_CurrentThread;
   void* waitOn();
 };
 
@@ -85,15 +85,15 @@ struct ThreadSupervisorInformation
 };
 
 
-class SupervisorThread
+class supervisor_thread_t
 {
 public:
-  SupervisorThread(int localThreadId);
+  supervisor_thread_t(int localThreadId);
   pthread_t ThreadId() { return m_ThreadId; }
   void start();
   void shutdown() { m_KeepRunning = false; }
   // the next function, I believe, doesn't ever return. The return statement is here to shut up the compiler warnings.
-  static void* threadEntryPoint(void* st) { ((SupervisorThread*)st)->threadEntryPoint(); return 0;}
+  static void* thread_entry_point(void* st) { ((supervisor_thread_t*)st)->thread_entry_point(); return 0;}
   ///Pointer to the interrupt field that is the exception flag
   struct atomic_field* m_Interrupt;
   ///Pointer to the atomic field that is the exception flag
@@ -101,7 +101,7 @@ public:
   ///Accessor for m_LocalThreadId
   int localThreadId() { return m_LocalThreadId; }
  protected:
-  void threadEntryPoint(); 
+  void thread_entry_point(); 
   ///The POSIX thread Id for this thread.
   pthread_t m_ThreadId;
   ///Should the thread keep running
@@ -129,25 +129,25 @@ struct ThreadSupervisor
   ///Target number of threads to have running at once.
   int m_TargetNumThreads;
   ///map between pthread id's and thread information structures
-  std::map<pthread_t, struct ThreadSupervisorInformation*> m_ThreadMap;
+  std::map<pthread_t, struct ThreadSupervisorInformation*,::std::less<>,::cgc1::gc_allocator_t<::std::pair<pthread_t, struct ThreadSupervisorInformation*>>> m_ThreadMap;
   ///list of ready to go tasks
-  std::list<ThreadTask*> m_ReadyTasks;
+  std::list<ThreadTask*,::cgc1::gc_allocator_t<ThreadTask*>> m_ReadyTasks;
   ///list of running tasks
-  std::list<ThreadTask*> m_RunningTasks;
+  std::vector<ThreadTask*,::cgc1::gc_allocator_t<ThreadTask*>> m_RunningTasks;
   ///list of tasks waiting for dependencies
-  std::list<ThreadTask*> m_WaitingTasks;
+  std::list<ThreadTask*,::cgc1::gc_allocator_t<ThreadTask*>> m_WaitingTasks;
   ///list of tasks that are finished
-  std::list<ThreadTask*> m_FinishedTasks;
+  std::list<ThreadTask*,::cgc1::gc_allocator_t<ThreadTask*>> m_FinishedTasks;
   ///list of canceled
-  std::list<ThreadTask*> m_CanceledTasks;
+  std::list<ThreadTask*,::cgc1::gc_allocator_t<ThreadTask*>> m_CanceledTasks;
   ///mutex for accessing lists
   pthreadMutex m_Mutex;
   ///new task waiting
   pthread_cond_t m_TaskWaitingCondition;
   ///list of supervisor threads
-  std::list<SupervisorThread*> m_Threads;
+  std::list<supervisor_thread_t*,::cgc1::gc_allocator_t<supervisor_thread_t*>> m_Threads;
   ///set of initialized pointers
-  std::set<int*> m_ThreadLocalIdPtrSet;
+  std::set<int*,::std::less<>,::cgc1::gc_allocator_t<int*>> m_ThreadLocalIdPtrSet;
   ///initialize
   void initialize();
   ///thread local id's
