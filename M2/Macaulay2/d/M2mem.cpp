@@ -226,31 +226,7 @@ char *getmoremem_atomic (char *s, size_t old, size_t new_) {
 
 */
 
-/*
- the next routines redefine malloc and friends
-   */
 
-#if 0
-
-void *malloc (size_t n) {
-  if (M2inits_firsttime) M2inits();
-  return getmem(n);
-}
-
-void *calloc (size_t n,size_t k) {
-  if (M2inits_firsttime) M2inits();
-  return getmem_clear(n*k);
-}
-
-void free (void *p) {
-  GC_FREE(p);
-}
-
-void *realloc (void *p, size_t n) {
-  return getmoremem1(p,n);
-}
-
-#endif
 }
 /*
  Local Variables:

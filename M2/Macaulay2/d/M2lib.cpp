@@ -763,7 +763,7 @@ int Macaulay2_main(int argc,const char**argv)
 
      system_handleInterruptsSetup(TRUE);
      
-     vargs = reinterpret_cast<struct saveargs*>(GC_MALLOC_UNCOLLECTABLE(sizeof(struct saveargs)));
+     vargs = reinterpret_cast<struct saveargs*>(::cgc1::cgc_malloc_uncollectable(sizeof(struct saveargs)));
      vargs->argv=const_cast<char**>(saveargv);
      vargs->argc=argc;
      vargs->envp=saveenvp;
@@ -789,7 +789,7 @@ int system_dumpdata(M2_string datafilename)
      bool haderror = FALSE;
      char *datafilename_s = tocharstar(datafilename);
      if (ERROR == dumpdata(datafilename_s)) haderror = TRUE;
-     GC_FREE(datafilename_s);
+     ::cgc1::cgc_free(datafilename_s);
      return haderror ? ERROR : OKAY;
 #endif
      }
