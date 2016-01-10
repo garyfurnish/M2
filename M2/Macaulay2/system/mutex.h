@@ -1,36 +1,34 @@
 #ifndef _mutex_h_
 #define _mutex_h_
-#include <pthread.h>
 #include <atomic>
-#undef ERROR			/* undo mingw64 damage */
+#include <pthread.h>
+#undef ERROR /* undo mingw64 damage */
 #include <../include/M2/config.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct spinlockStructure
-{
+struct spinlockStructure {
   volatile int m_MutexInt;
 };
 typedef struct spinlockStructure spinLock;
-  static const spinLock uninitializedSpinLock = {0};
-static inline void initializeSpinLock(struct spinlockStructure* sls)
+static const spinLock uninitializedSpinLock = {0};
+static inline void initializeSpinLock(struct spinlockStructure *sls)
 {
   __sync_lock_release(&sls->m_MutexInt);
 }
-static inline void acquireSpinLock(struct spinlockStructure* sls)
+static inline void acquireSpinLock(struct spinlockStructure *sls)
 {
-  int res = __sync_lock_test_and_set(&sls->m_MutexInt,1);
-  while(res==1)
-    {
-      #if (defined(ARCH_X86) || defined(ARCH_X86_64)) && defined(__GNUC__)
-      __asm__("pause");
-      #endif
-      res = __sync_lock_test_and_set(&sls->m_MutexInt,1);
-    }
+  int res = __sync_lock_test_and_set(&sls->m_MutexInt, 1);
+  while (res == 1) {
+#if (defined(ARCH_X86) || defined(ARCH_X86_64)) && defined(__GNUC__)
+    __asm__("pause");
+#endif
+    res = __sync_lock_test_and_set(&sls->m_MutexInt, 1);
+  }
   ::std::atomic_thread_fence(::std::memory_order_acquire);
 }
-static inline void releaseSpinLock(struct spinlockStructure* sls)
+static inline void releaseSpinLock(struct spinlockStructure *sls)
 {
   ::std::atomic_thread_fence(::std::memory_order_release);
   __sync_lock_release(&sls->m_MutexInt);

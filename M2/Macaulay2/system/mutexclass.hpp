@@ -9,24 +9,25 @@ class pthreadMutex
 public:
   pthreadMutex()
   {
-    if(pthread_mutex_init(&m_Mutex,NULL))
+    if (pthread_mutex_init(&m_Mutex, NULL))
       abort();
   }
   void lock()
   {
-    while(pthread_mutex_lock(&m_Mutex));
+    while (pthread_mutex_lock(&m_Mutex))
+      ;
   }
   void unlock()
   {
-    while(pthread_mutex_unlock(&m_Mutex));
+    while (pthread_mutex_unlock(&m_Mutex))
+      ;
   }
   ~pthreadMutex()
   {
-    if(pthread_mutex_destroy(&m_Mutex))
+    if (pthread_mutex_destroy(&m_Mutex))
       abort();
   }
   pthread_mutex_t m_Mutex;
 };
-
 
 #endif
