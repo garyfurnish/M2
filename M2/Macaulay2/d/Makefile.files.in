@@ -11,14 +11,12 @@ M2_OBJECTS += debug.o
 endif
 M2_OPTCFILES += M2inits1.cc M2inits2.cc M2inits3.cc 
 M2_CFILES += gmp_aux.c 
-M2_LASTCFILES += M2types.c
-M2_LASTCPPFILES += scclib.cpp M2lib.cpp M2mem.cpp gdbm_interface.cpp
+M2_LASTCPPFILES += M2types.cpp scclib.cpp M2lib.cpp M2mem.cpp gdbm_interface.cpp
 M2_CFILES += main.c 
 M2_MADECFILES := startup.c
 M2_OBJECTS += $(M2_MADECFILES:.c=.o)
 M2_OBJECTS += ../regex/regex.o
 M2_CCFILES := gmp_init.cc
-M2_OBJECTS += $(M2_CCFILES:.cc=.o)
 M2_HFILES := getpagesize.h types.h M2inits.h M2mem.h debug.h startup-header.h startup-trailer.h
 
 M2_DFILES :=
@@ -92,9 +90,9 @@ M2_DFILES += threads.dd
 ifeq (@PARI@,yes)
 M2_DFILES += pari.dd
 M2_HFILES += pari-c.h
-M2_CFILES += pari-c.c
+M2_CCFILES += pari-c.cc
 else
-M2_SRCFILES += pari.dd pari-c.h pari-c.c
+M2_SRCFILES += pari.dd pari-c.h pari-c.cc
 endif
 
 M2_DFILES += flint.dd
@@ -124,6 +122,7 @@ actors5.o basic.o : \
 # now assemble the files into various categories:
 M2_DNAMES := $(patsubst %.d, %, $(patsubst %.dd, %, $(M2_DFILES)))
 M2_OBJECTS += $(M2_CFILES:.c=.o)
+M2_OBJECTS += $(M2_CCFILES:.cc=.o)
 M2_OBJECTS += M2-factory.o
 M2_OBJECTS += $(M2_LASTCFILES:.c=.o)
 M2_OBJECTS += $(M2_LASTCCFILES:.cc=.o)

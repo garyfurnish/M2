@@ -30,7 +30,7 @@ CPPNAMES := scc1.cpp cprint.cpp
 HFILES := $(CNAMES:.c=.h) $(CPPNAMES:.cpp=.h) scc.h grammar.h keywords.h
 CPPOFILES := $(CPPNAMES:.cpp=.o)
 OFILES := $(CNAMES:.c=.o) $(CPPOFILES) grammar.o
-SRCFILES := $(HFILES) $(CNAMES) $(CPPNAMES) grammar.y scc-core.h scc-core.c
+SRCFILES := $(HFILES) $(CNAMES) $(CPPNAMES) grammar.y scc-core.hpp scc-core.cc
 CPPFLAGS := -I../../include -I/include -I@srcdir@/../../include -I@srcdir@ $(CPPFLAGS)
 
 # C standards
@@ -65,7 +65,7 @@ foo-tmp.c foo.sig.tmp: scc1
 foo.o : CPPFLAGS += -Wno-unused-function
 foo-tmp.c : SCCFLAGS += -noline
 foo-tmp.c : SCCFLAGS += -debug
-scc-core.o : scc-core.h
+scc-core.o : scc-core.hpp
 foo: scc-core.o | scc1
 run-foo:foo;./foo
 clean::; rm -f foo 

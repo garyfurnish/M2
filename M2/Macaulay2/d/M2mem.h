@@ -2,7 +2,7 @@
 #define M2mem_included
 
 #include <stdlib.h>
-#include <scc-core.h>
+#include <scc-core.hpp>
 
 #if defined(__cplusplus)
 extern "C" {

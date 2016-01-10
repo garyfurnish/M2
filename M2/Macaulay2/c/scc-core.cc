@@ -1,5 +1,5 @@
 /* this file (or a replacement) gets linked into each program created using scc1 */
-#include <scc-core.h>
+#include <scc-core.hpp>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdarg.h>
@@ -18,17 +18,17 @@ void scc_core_prepare() {
   GC_INIT();
 }
 
-struct FUNCTION_CELL *pre_final_list, *final_list, *thread_prepare_list;
+::cgc1::cgc_root_pointer2_converting_t<struct FUNCTION_CELL> pre_final_list, final_list, thread_prepare_list;
 void outofmem(void) {
   const char msg[] = "\n\n *** out of memory, exiting ***\n";
   int r = write(STDERR,msg,sizeof(msg));
   if (r == ERROR) exit(1);
   exit(1);
 }
-void outofmem2(size_t new) {
+void outofmem2(size_t new_) {
   const char *msg = "\n\n *** out of memory trying to allocate %ld bytes, exiting ***\n";
   static char buf[sizeof(msg) + 100];
-  sprintf(buf,msg,(long)new);
+  sprintf(buf,msg,(long)new_);
   int r = write(STDERR,buf,strlen(buf));
   if (r == ERROR) exit(1);
   exit(1);

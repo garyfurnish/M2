@@ -1,6 +1,7 @@
 /* this file gets included into each file created by scc1 */
 #ifndef SCC_CORE_H
 #define SCC_CORE_H
+#include <cgc1/cgc1.hpp>
 #include <M2/gc-include.h>
 /* for size_t: */
  #include <stdlib.h>
@@ -16,7 +17,7 @@
     extern void fatal( va_alist  );
     #endif
     struct FUNCTION_CELL { void (*fun)(); struct FUNCTION_CELL *next; };
-    extern struct FUNCTION_CELL *pre_final_list, *final_list, *thread_prepare_list;
+    extern ::cgc1::cgc_root_pointer2_converting_t<struct FUNCTION_CELL> pre_final_list, final_list, thread_prepare_list;
     extern void invalidTypeTag(int,const char*,int,int);
     extern void invalidNullPointer(const char*,int,int);
     extern void fatalarraylen(int,const char*,int,int);

@@ -969,8 +969,7 @@ int system_run(M2_string command){
      GC_FREE(c);
      return r;
      }
-
-struct FUNCTION_CELL *pre_final_list, *final_list, *thread_prepare_list;
+::cgc1::cgc_root_pointer2_converting_t<struct FUNCTION_CELL> pre_final_list, final_list, thread_prepare_list;
 
 void system_atend(void (*f)()){
      struct FUNCTION_CELL *this_final = (struct FUNCTION_CELL *)getmem(sizeof(struct FUNCTION_CELL));

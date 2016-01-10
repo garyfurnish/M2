@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <assert.h>
 #include <pari/pari.h>
 #include <gmp.h>
@@ -5,7 +6,7 @@
 #include "M2inits.h"
 #include "pari-c.h"
 #include "M2/config.h"
-
+extern "C" {
 #define FALSE 0
 #define TRUE 1
 
@@ -238,7 +239,7 @@ char *get_pari_version() {
 	  );
   return buf;
 }
-
+}
 
 /*
  Local Variables:

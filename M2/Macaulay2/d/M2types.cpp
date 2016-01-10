@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "M2mem.h"
-
+extern "C" {
 #if 0
 
 const char *nullstringer(const char *s) {
@@ -30,7 +30,7 @@ M2_arrayint toarrayint(int n,int *p)
 
 
 #endif
-
+}
 /*
  Local Variables:
  compile-command: "echo \"make: Entering directory \\`$M2BUILDDIR/Macaulay2/d'\" && make -C $M2BUILDDIR/Macaulay2/d "

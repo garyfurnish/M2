@@ -139,7 +139,7 @@ void *sbrk();		/* not really ansi standard, sigh */
 #undef ERROR
 #define ERROR (-1)      /* in Windows NT there is a file that sets ERROR to 0 */
 
-#include <scc-core.h>
+#include <scc-core.hpp>
 #ifdef __cplusplus
 extern "C" {
 #endif

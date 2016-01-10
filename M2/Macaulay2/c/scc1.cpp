@@ -161,7 +161,7 @@ static const char declarations_trailer[] = "\
 ";
 
 static const char code_header[] = "\
-#include \"scc-core.h\"\n\
+#include \"scc-core.hpp\"\n\
 #include \"../system/supervisorinterface.h\"\n\
 #if defined(__cplusplus)\n\
 #include <cgc1/cgc1.hpp>\n\
